@@ -148,11 +148,6 @@ updateSegmentData(const UpdaterConfig &config,
 {
     auto weight_multiplier = profile_properties.GetWeightMultiplier();
 
-    std::vector<extractor::QueryNode> internal_to_external_node_map;
-    storage::io::FileReader nodes_file(config.node_based_graph_path,
-                                       storage::io::FileReader::HasNoFingerprint);
-    nodes_file.DeserializeVector(internal_to_external_node_map);
-
     // vector to count used speeds for logging
     // size offset by one since index 0 is used for speeds not from external file
     using counters_type = std::vector<std::size_t>;
@@ -261,6 +256,7 @@ updateSegmentData(const UpdaterConfig &config,
         {
             merged_counters[i] += counters[i];
         }
+    }
 
     for (std::size_t i = 0; i < merged_counters.size(); i++)
     {
@@ -369,7 +365,8 @@ updateTurnPenalties(const UpdaterConfig &config,
                     const extractor::ProfileProperties &profile_properties,
                     const TurnLookupTable &turn_penalty_lookup,
                     std::vector<TurnPenalty> &turn_weight_penalties,
-                    std::vector<TurnPenalty> &turn_duration_penalties)
+                    std::vector<TurnPenalty> &turn_duration_penalties,
+                    std::vector<extractor::QueryNode> &internal_to_external_node_map)
 {
     const auto weight_multiplier = profile_properties.GetWeightMultiplier();
     const auto turn_penalties_index_region =
@@ -417,13 +414,16 @@ Updater::NumNodesAndEdges Updater::LoadAndUpdateEdgeExpandedGraph() const
 {
     std::vector<extractor::EdgeBasedEdge> edge_based_edge_list;
     std::vector<EdgeWeight> node_weights;
-    auto max_edge_id = Updater::LoadAndUpdateEdgeExpandedGraph(edge_based_edge_list, node_weights);
+    std::vector<extractor::QueryNode> internal_to_external_node_map;
+    auto max_edge_id = Updater::LoadAndUpdateEdgeExpandedGraph(
+        edge_based_edge_list, node_weights, internal_to_external_node_map);
     return std::make_tuple(max_edge_id + 1, std::move(edge_based_edge_list));
 }
 
-EdgeID
-Updater::LoadAndUpdateEdgeExpandedGraph(std::vector<extractor::EdgeBasedEdge> &edge_based_edge_list,
-                                        std::vector<EdgeWeight> &node_weights) const
+EdgeID Updater::LoadAndUpdateEdgeExpandedGraph(
+    std::vector<extractor::EdgeBasedEdge> &edge_based_edge_list,
+    std::vector<EdgeWeight> &node_weights,
+    std::vector<extractor::QueryNode> internal_to_external_node_map) const
 {
     TIMER_START(load_edges);
 
@@ -436,6 +436,9 @@ Updater::LoadAndUpdateEdgeExpandedGraph(std::vector<extractor::EdgeBasedEdge> &e
         edge_based_edge_list.resize(num_edges);
         max_edge_id = reader.ReadOne<EdgeID>();
         reader.ReadInto(edge_based_edge_list);
+        storage::io::FileReader nodes_file(config.node_based_graph_path,
+                                           storage::io::FileReader::HasNoFingerprint);
+        nodes_file.DeserializeVector(internal_to_external_node_map);
     }
 
     const bool update_conditional_turns = !config.turn_restrictions_path.empty();
@@ -522,7 +525,8 @@ Updater::LoadAndUpdateEdgeExpandedGraph(std::vector<extractor::EdgeBasedEdge> &e
                                                           profile_properties,
                                                           turn_penalty_lookup,
                                                           turn_weight_penalties,
-                                                          turn_duration_penalties);
+                                                          turn_duration_penalties,
+                                                          internal_to_external_node_map);
         const auto offset = updated_segments.size();
         updated_segments.resize(offset + updated_turn_penalties.size());
         // we need to re-compute all edges that have updated turn penalties.

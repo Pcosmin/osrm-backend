@@ -1,5 +1,5 @@
-#include "extractor/edge_based_graph_factory.hpp"
 #include "extractor/edge_based_edge.hpp"
+#include "extractor/edge_based_graph_factory.hpp"
 #include "extractor/guidance/turn_analysis.hpp"
 #include "extractor/guidance/turn_lane_handler.hpp"
 #include "extractor/io.hpp"
@@ -569,25 +569,19 @@ void EdgeBasedGraphFactory::GenerateEdgeExpandedEdges(
                     // If this edge is 'trivial' -- where the compressed edge corresponds
                     // exactly to an original OSM segment -- we can pull the turn's preceding
                     // node ID directly with `node_along_road_entering`; otherwise, we need to
-                    // look
-                    // up the node
-                    // immediately preceding the turn from the compressed edge container.
+                    // look up the node immediately preceding the turn from the compressed edge
+                    // container.
                     const bool isTrivial = m_compressed_edge_container.IsTrivial(incoming_edge);
 
                     const auto &from_node =
-                        isTrivial
-                            ? m_node_info_list[node_along_road_entering]
-                            : m_node_info_list[m_compressed_edge_container.GetLastEdgeSourceID(
-                                  incoming_edge)];
+                        isTrivial ? node_along_road_entering
+                                  : m_compressed_edge_container.GetLastEdgeSourceID(incoming_edge);
                     const auto &via_node =
-                        m_node_info_list[m_compressed_edge_container.GetLastEdgeTargetID(
-                            incoming_edge)];
+                        m_compressed_edge_container.GetLastEdgeTargetID(incoming_edge);
                     const auto &to_node =
-                        m_node_info_list[m_compressed_edge_container.GetFirstEdgeTargetID(
-                            turn.eid)];
+                        m_compressed_edge_container.GetFirstEdgeTargetID(turn.eid);
 
-                    lookup::TurnIndexBlock turn_index_block = {
-                        from_node.node_id, via_node.node_id, to_node.node_id};
+                    lookup::TurnIndexBlock turn_index_block = {from_node, via_node, to_node};
 
                     turn_penalties_index_file.WriteOne(turn_index_block);
                 }
