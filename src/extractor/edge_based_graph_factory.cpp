@@ -4,12 +4,12 @@
 #include "util/coordinate.hpp"
 #include "util/coordinate_calculation.hpp"
 #include "util/exception.hpp"
+#include "util/exception_utils.hpp"
 #include "util/guidance/turn_bearing.hpp"
 #include "util/integer_range.hpp"
 #include "util/log.hpp"
 #include "util/percent.hpp"
 #include "util/timing_util.hpp"
-#include "util/exception_utils.hpp"
 
 #include "extractor/guidance/turn_analysis.hpp"
 #include "extractor/guidance/turn_lane_handler.hpp"
@@ -185,8 +185,10 @@ void EdgeBasedGraphFactory::FlushVectorToStream(
     edge_data_file.write((char *)&(original_edge_data_vector[0]),
                          original_edge_data_vector.size() * sizeof(OriginalEdgeData));
 
-    if (!edge_data_file.good()) {
-        throw util::exception(std::string("Error on Edge Data File Write Stream for ") + SOURCE_REF);
+    if (!edge_data_file.good())
+    {
+        throw util::exception(std::string("Error on Edge Data File Write Stream for ") +
+                              SOURCE_REF);
     }
 
     original_edge_data_vector.clear();
@@ -345,8 +347,10 @@ void EdgeBasedGraphFactory::GenerateEdgeExpandedEdges(
     edge_data_file.write(reinterpret_cast<const char *>(&length_prefix_empty_space),
                          sizeof(length_prefix_empty_space));
 
-    if (!edge_data_file.good()) {
-        throw util::exception(std::string("Error on Edge Data File Write Stream for ") + SOURCE_REF);
+    if (!edge_data_file.good())
+    {
+        throw util::exception(std::string("Error on Edge Data File Write Stream for ") +
+                              SOURCE_REF);
     }
 
     std::vector<OriginalEdgeData> original_edge_data_vector;
@@ -604,8 +608,11 @@ void EdgeBasedGraphFactory::GenerateEdgeExpandedEdges(
                         edge_segment_file.write(reinterpret_cast<const char *>(&header),
                                                 sizeof(header));
 
-                        if (!edge_segment_file.good()) {
-                            throw util::exception(std::string("Error on Edge Segment File Write Stream for ") + SOURCE_REF);
+                        if (!edge_segment_file.good())
+                        {
+                            throw util::exception(
+                                std::string("Error on Edge Segment File Write Stream for ") +
+                                SOURCE_REF);
                         }
 
                         for (auto target_node : node_based_edges)
@@ -623,8 +630,11 @@ void EdgeBasedGraphFactory::GenerateEdgeExpandedEdges(
                             edge_segment_file.write(reinterpret_cast<const char *>(&nodeblock),
                                                     sizeof(nodeblock));
 
-                            if (!edge_segment_file.good()) {
-                                throw util::exception(std::string("Error on Edge Segment File Write Stream for ") + SOURCE_REF);
+                            if (!edge_segment_file.good())
+                            {
+                                throw util::exception(
+                                    std::string("Error on Edge Segment File Write Stream for ") +
+                                    SOURCE_REF);
                             }
                             previous = target_node.node_id;
                         }
@@ -663,8 +673,12 @@ void EdgeBasedGraphFactory::GenerateEdgeExpandedEdges(
                             reinterpret_cast<const char *>(&turn_index_block),
                             sizeof(turn_index_block));
 
-                        if (!turn_penalties_index_file.good()) {
-                            throw util::exception(std::string("Error on Turn Penalties Index File Write Stream for ") + SOURCE_REF);
+                        if (!turn_penalties_index_file.good())
+                        {
+                            throw util::exception(
+                                std::string(
+                                    "Error on Turn Penalties Index File Write Stream for ") +
+                                SOURCE_REF);
                         }
                     }
                 }
@@ -678,16 +692,14 @@ void EdgeBasedGraphFactory::GenerateEdgeExpandedEdges(
     lookup::TurnPenaltiesHeader turn_weight_penalties_header{turn_weight_penalties.size()};
     turn_weight_penalties_file.write(reinterpret_cast<const char *>(&turn_weight_penalties_header),
                                      sizeof(turn_weight_penalties_header));
-    if (!turn_weight_penalties_file.good()) {
-        throw util::exception(std::string("Error on Turn Weight Penalties File Write Stream for ") + SOURCE_REF);
-    }
     turn_weight_penalties_file.write(reinterpret_cast<const char *>(turn_weight_penalties.data()),
                                      sizeof(decltype(turn_weight_penalties)::value_type) *
                                          turn_weight_penalties.size());
-    if (!turn_weight_penalties_file.good()) {
-        throw util::exception(std::string("Error on Turn Weight Penalties File Write Stream for ") + SOURCE_REF);
+    if (!turn_weight_penalties_file.good())
+    {
+        throw util::exception(std::string("Error on Turn Weight Penalties File Write Stream for ") +
+                              SOURCE_REF);
     }
-
 
     // write duration penalties per turn if we need them
     BOOST_ASSERT(!profile_properties.fallback_to_duration || turn_duration_penalties.size() == 0);
@@ -697,8 +709,10 @@ void EdgeBasedGraphFactory::GenerateEdgeExpandedEdges(
     turn_duration_penalties_file.write(
         reinterpret_cast<const char *>(&turn_duration_penalties_header),
         sizeof(turn_duration_penalties_header));
-    if (!turn_duration_penalties_file.good()) {
-        throw util::exception(std::string("Error on Turn Duration Penalties File Write Stream for ") + SOURCE_REF);
+    if (!turn_duration_penalties_file.good())
+    {
+        throw util::exception(
+            std::string("Error on Turn Duration Penalties File Write Stream for ") + SOURCE_REF);
     }
 
     if (!profile_properties.fallback_to_duration)
@@ -707,8 +721,11 @@ void EdgeBasedGraphFactory::GenerateEdgeExpandedEdges(
         turn_duration_penalties_file.write(
             reinterpret_cast<const char *>(turn_duration_penalties.data()),
             sizeof(decltype(turn_duration_penalties)::value_type) * turn_duration_penalties.size());
-        if (!turn_duration_penalties_file.good()) {
-            throw util::exception(std::string("Error on Turn Duration Penalties File Write Stream for ") + SOURCE_REF);
+        if (!turn_duration_penalties_file.good())
+        {
+            throw util::exception(
+                std::string("Error on Turn Duration Penalties File Write Stream for ") +
+                SOURCE_REF);
         }
     }
 
@@ -724,16 +741,20 @@ void EdgeBasedGraphFactory::GenerateEdgeExpandedEdges(
 
     std::uint64_t size = lane_data.size();
     turn_lane_data_file.write(reinterpret_cast<const char *>(&size), sizeof(size));
-    if (!turn_lane_data_file.good()) {
-        throw util::exception(std::string("Error on Turn Lane Data File Write Stream for ") + SOURCE_REF);
+    if (!turn_lane_data_file.good())
+    {
+        throw util::exception(std::string("Error on Turn Lane Data File Write Stream for ") +
+                              SOURCE_REF);
     }
 
     if (!lane_data.empty())
         turn_lane_data_file.write(reinterpret_cast<const char *>(&lane_data[0]),
                                   sizeof(util::guidance::LaneTupleIdPair) * lane_data.size());
 
-    if (!turn_lane_data_file.good()) {
-        throw util::exception(std::string("Error on Turn Lane Data File Write Stream for ") + SOURCE_REF);
+    if (!turn_lane_data_file.good())
+    {
+        throw util::exception(std::string("Error on Turn Lane Data File Write Stream for ") +
+                              SOURCE_REF);
     }
 
     util::Log() << "done.";
@@ -747,8 +768,10 @@ void EdgeBasedGraphFactory::GenerateEdgeExpandedEdges(
     static_assert(sizeof(length_prefix_empty_space) == sizeof(length_prefix), "type mismatch");
 
     edge_data_file.write(reinterpret_cast<const char *>(&length_prefix), sizeof(length_prefix));
-    if (!edge_data_file.good()) {
-        throw util::exception(std::string("Error on Edge Data File Write Stream for ") + SOURCE_REF);
+    if (!edge_data_file.good())
+    {
+        throw util::exception(std::string("Error on Edge Data File Write Stream for ") +
+                              SOURCE_REF);
     }
 
     util::Log() << "Generated " << m_edge_based_node_list.size() << " edge based nodes";

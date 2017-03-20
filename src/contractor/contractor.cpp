@@ -736,6 +736,11 @@ Contractor::LoadEdgeExpandedGraph(const ContractorConfig &config,
                               number_of_compressed_geometries * sizeof(EdgeWeight));
         geometry_stream.write(reinterpret_cast<char *>(&(geometry_rev_duration_list[0])),
                               number_of_compressed_geometries * sizeof(EdgeWeight));
+        if (!geometry_stream.good())
+        {
+            throw util::exception(std::string("Error on Geometry Stream at ") + SOURCE_REF);
+        }
+
     };
 
     const auto save_datasource_indexes = [&] {
@@ -753,6 +758,10 @@ Contractor::LoadEdgeExpandedGraph(const ContractorConfig &config,
         {
             datasource_stream.write(reinterpret_cast<char *>(&(geometry_datasource[0])),
                                     number_of_datasource_entries * sizeof(uint8_t));
+        }
+        if (!datasource_stream.good())
+        {
+            throw util::exception(std::string("Error on Data Source Stream at ") + SOURCE_REF);
         }
     };
 
@@ -956,6 +965,11 @@ void Contractor::WriteNodeLevels(std::vector<float> &&in_node_levels) const
     unsigned level_size = node_levels.size();
     order_output_stream.write((char *)&level_size, sizeof(unsigned));
     order_output_stream.write((char *)node_levels.data(), sizeof(float) * node_levels.size());
+
+    if (!order_output_stream.good())
+    {
+        throw util::exception(std::string("Error on Order Output Stream at ") + SOURCE_REF);
+    }
 }
 
 void Contractor::WriteCoreNodeMarker(std::vector<bool> &&in_is_core_node) const
@@ -973,6 +987,11 @@ void Contractor::WriteCoreNodeMarker(std::vector<bool> &&in_is_core_node) const
     core_marker_output_stream.write((char *)&size, sizeof(unsigned));
     core_marker_output_stream.write((char *)unpacked_bool_flags.data(),
                                     sizeof(char) * unpacked_bool_flags.size());
+
+    if (!core_marker_output_stream.good())
+    {
+        throw util::exception(std::string("Error on Core Marker Output Stream at ") + SOURCE_REF);
+    }
 }
 
 std::size_t
@@ -987,6 +1006,10 @@ Contractor::WriteContractedGraph(unsigned max_node_id,
     const util::FingerPrint fingerprint = util::FingerPrint::GetValid();
     boost::filesystem::ofstream hsgr_output_stream(config.graph_output_path, std::ios::binary);
     hsgr_output_stream.write((char *)&fingerprint, sizeof(util::FingerPrint));
+    if (!hsgr_output_stream.good())
+    {
+        throw util::exception(std::string("Error on HSGR Output Stream at ") + SOURCE_REF);
+    }
     const NodeID max_used_node_id = [&contracted_edge_list] {
         NodeID tmp_max = 0;
         for (const QueryEdge &edge : contracted_edge_list)
@@ -1050,6 +1073,10 @@ Contractor::WriteContractedGraph(unsigned max_node_id,
                                  sizeof(util::StaticGraph<EdgeData>::NodeArrayEntry) *
                                      node_array_size);
     }
+    if (!hsgr_output_stream.good())
+    {
+        throw util::exception(std::string("Error on HSGR Output Stream at ") + SOURCE_REF);
+    }
 
     // serialize all edges
     util::Log() << "Building edge array";
@@ -1084,6 +1111,10 @@ Contractor::WriteContractedGraph(unsigned max_node_id,
 #endif
         hsgr_output_stream.write((char *)&current_edge,
                                  sizeof(util::StaticGraph<EdgeData>::EdgeArrayEntry));
+        if (!hsgr_output_stream.good())
+        {
+            throw util::exception(std::string("Error on HSGR Output Stream at ") + SOURCE_REF);
+        }
 
         ++number_of_used_edges;
     }
