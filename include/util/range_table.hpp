@@ -224,25 +224,31 @@ std::ostream &operator<<(std::ostream &out, const RangeTable<BLOCK_SIZE, USE_SHA
     out.write((char *)&number_of_blocks, sizeof(unsigned));
     if (!out.good())
     {
-        throw util::exception(std::string("Error on Out Stream for ") + SOURCE_REF);
+        throw util::exception(
+            std::string("Error writing block size of range table to shared memory: ") + SOURCE_REF);
     }
     // write total length
     out.write((char *)&table.sum_lengths, sizeof(unsigned));
     if (!out.good())
     {
-        throw util::exception(std::string("Error on Out Stream for ") + SOURCE_REF);
+        throw util::exception(
+            std::string("Error writing total length of range table to shared memory: ") +
+            SOURCE_REF);
     }
     // write block offsets
     out.write((char *)table.block_offsets.data(), sizeof(unsigned) * table.block_offsets.size());
     if (!out.good())
     {
-        throw util::exception(std::string("Error on Out Stream for ") + SOURCE_REF);
+        throw util::exception(
+            std::string("Error writing block offsets of range table to shared memory: ") +
+            SOURCE_REF);
     }
     // write blocks
     out.write((char *)table.diff_blocks.data(), BLOCK_SIZE * table.diff_blocks.size());
     if (!out.good())
     {
-        throw util::exception(std::string("Error on Out Stream for ") + SOURCE_REF);
+        throw util::exception(
+            std::string("Error writing blocks of range table to shared memory: ") + SOURCE_REF);
     }
 
     return out;

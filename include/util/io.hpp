@@ -29,7 +29,7 @@ inline bool writeFingerprint(std::ostream &stream)
     stream.write(reinterpret_cast<const char *>(&fingerprint), sizeof(fingerprint));
     if (!stream.good())
     {
-        throw util::exception(std::string("Error on Stream for ") + SOURCE_REF);
+        throw util::exception(std::string("Error writing fingerprint: ") + SOURCE_REF);
     }
     return static_cast<bool>(stream);
 }
@@ -43,7 +43,7 @@ bool serializeVector(std::ostream &stream, const std::vector<simple_type> &data)
         stream.write(reinterpret_cast<const char *>(&data[0]), sizeof(simple_type) * count);
     if (!stream.good())
     {
-        throw util::exception(std::string("Error on Stream for ") + SOURCE_REF);
+        throw util::exception(std::string("Error serializing vector: ") + SOURCE_REF);
     }
     return static_cast<bool>(stream);
 }
@@ -93,7 +93,8 @@ bool serializeVector(std::ofstream &out_stream, const stxxl::vector<simple_type>
     out_stream.write(reinterpret_cast<const char *>(&size), sizeof(size));
     if (!out_stream.good())
     {
-        throw util::exception(std::string("Error on Stream for ") + SOURCE_REF);
+        throw util::exception(std::string("Error serializing vector. Writing size step: ") +
+                              SOURCE_REF);
     }
 
     simple_type write_buffer[WRITE_BLOCK_BUFFER_SIZE];
@@ -107,10 +108,6 @@ bool serializeVector(std::ofstream &out_stream, const stxxl::vector<simple_type>
         {
             out_stream.write(reinterpret_cast<const char *>(write_buffer),
                              WRITE_BLOCK_BUFFER_SIZE * sizeof(simple_type));
-            if (!out_stream.good())
-            {
-                throw util::exception(std::string("Error on Stream for ") + SOURCE_REF);
-            }
             buffer_len = 0;
         }
     }
@@ -121,7 +118,8 @@ bool serializeVector(std::ofstream &out_stream, const stxxl::vector<simple_type>
                          buffer_len * sizeof(simple_type));
     if (!out_stream.good())
     {
-        throw util::exception(std::string("Error on Stream for ") + SOURCE_REF);
+        throw util::exception(std::string("Error serializing vector. Writing data step: ") +
+                              SOURCE_REF);
     }
 
     return static_cast<bool>(out_stream);
@@ -156,7 +154,8 @@ inline bool serializeFlags(const boost::filesystem::path &path, const std::vecto
     flag_stream.write(reinterpret_cast<const char *>(&number_of_bits), sizeof(number_of_bits));
     if (!flag_stream.good())
     {
-        throw util::exception(std::string("Error on Flag Stream for ") + SOURCE_REF);
+        throw util::exception(std::string("Error on  serializing flags. Write size step: ") +
+                              SOURCE_REF);
     }
     // putting bits in ints
     std::uint32_t chunk = 0;
@@ -171,10 +170,11 @@ inline bool serializeFlags(const boost::filesystem::path &path, const std::vecto
         chunk = chunk_bitset.to_ulong();
         ++chunk_count;
         flag_stream.write(reinterpret_cast<const char *>(&chunk), sizeof(chunk));
-        if (!flag_stream.good())
-        {
-            throw util::exception(std::string("Error on Flag Stream for ") + SOURCE_REF);
-        }
+    }
+    if (!flag_stream.good())
+    {
+        throw util::exception(std::string("Error on  serializing flags. Write data step: ") +
+                              SOURCE_REF);
     }
     Log() << "Wrote " << number_of_bits << " bits in " << chunk_count << " chunks (Flags).";
     return static_cast<bool>(flag_stream);

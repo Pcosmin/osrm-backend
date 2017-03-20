@@ -110,7 +110,7 @@ template <int N, typename T = std::string> struct VariableGroupBlock
 
         if (!out.good())
         {
-            throw util::exception(std::string("Error on Out Stream for ") + SOURCE_REF);
+            throw util::exception(std::string("Error writing block reference: ") + SOURCE_REF);
         }
 
         return prefix_length;
@@ -137,7 +137,7 @@ template <int N, typename T = std::string> struct VariableGroupBlock
 
             if (!out.good())
             {
-                throw util::exception(std::string("Error on Out Stream for ") + SOURCE_REF);
+                throw util::exception(std::string("Error writing block prefix: ") + SOURCE_REF);
             }
         }
     }
@@ -196,7 +196,8 @@ template <int N, typename T = std::string> struct FixedGroupBlock
 
         if (!out.good())
         {
-            throw util::exception(std::string("Error on Out Stream for ") + SOURCE_REF);
+            throw util::exception(std::string("Error writing group block reference: ") +
+                                  SOURCE_REF);
         }
 
         return BLOCK_SIZE;
@@ -220,7 +221,8 @@ template <int N, typename T = std::string> struct FixedGroupBlock
 
         if (!out.good())
         {
-            throw util::exception(std::string("Error on Out Stream for ") + SOURCE_REF);
+            throw util::exception(std::string("Error writing a fixed length block prefix: ") +
+                                  SOURCE_REF);
         }
     }
 
@@ -284,7 +286,7 @@ template <typename GroupBlock> struct IndexedData
 
         if (!out.good())
         {
-            throw util::exception(std::string("Error on Out Stream for ") + SOURCE_REF);
+            throw util::exception(std::string("Error writing indexed data: ") + SOURCE_REF);
         }
 
         // Write block references and compute the total data size that includes prefix and data
@@ -303,7 +305,8 @@ template <typename GroupBlock> struct IndexedData
 
         if (!out.good())
         {
-            throw util::exception(std::string("Error on Out Stream for ") + SOURCE_REF);
+            throw util::exception(std::string("Error writing the total indexed data size: ") +
+                                  SOURCE_REF);
         }
 
         // Write data blocks that are (prefix, data)

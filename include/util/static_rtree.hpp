@@ -265,7 +265,8 @@ class StaticRTree
                 leaf_node_file.write((char *)&current_leaf, sizeof(current_leaf));
                 if (!leaf_node_file.good())
                 {
-                    throw util::exception(std::string("Error on Leaf Node File Stream for ") +
+                    throw util::exception(std::string("Error in static_rtree, writing leaf_node to "
+                                                      "leaf node file (`.fileIndex`): ") +
                                           SOURCE_REF);
                 }
             }
@@ -343,12 +344,16 @@ class StaticRTree
         tree_node_file.write((char *)&size_of_tree, sizeof(size_of_tree));
         if (!tree_node_file.good())
         {
-            throw util::exception(std::string("Error on Tree Node File Stream for ") + SOURCE_REF);
+            throw util::exception(
+                std::string("Error in static_rtree, writing size of tree in `.fileIndex` file: ") +
+                SOURCE_REF);
         }
         tree_node_file.write((char *)&m_search_tree[0], sizeof(TreeNode) * size_of_tree);
         if (!tree_node_file.good())
         {
-            throw util::exception(std::string("Error on Tree Node File Stream for ") + SOURCE_REF);
+            throw util::exception(
+                std::string("Error in static_rtree, writing tree data in `.fileIndex` file: ") +
+                SOURCE_REF);
         }
 
         MapLeafNodesFile(leaf_node_filename);

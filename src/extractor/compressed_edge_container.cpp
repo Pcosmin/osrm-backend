@@ -114,7 +114,9 @@ void CompressedEdgeContainer::SerializeInternalVector(const std::string &path) c
 
     if (!geometry_out_stream.good())
     {
-        throw util::exception(std::string("Error on HSGR Output Stream at ") + SOURCE_REF);
+        throw util::exception(std::string("Error in CompressedEdgeContainer, writing compressed "
+                                          "geometry to `.geometry` file: ") +
+                              SOURCE_REF);
     }
 }
 

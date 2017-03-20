@@ -160,7 +160,10 @@ void ExtractionContainers::PrepareData(ScriptingEnvironment &scripting_environme
     file_out_stream.write((char *)&fingerprint, sizeof(util::FingerPrint));
     if (!file_out_stream.good())
     {
-        throw util::exception(std::string("Error on File Output Stream at ") + SOURCE_REF);
+        throw util::exception(
+            std::string(
+                "Error writing fingerprint during extraction containers data preparation: ") +
+            SOURCE_REF);
     }
 
     FlushVectors();
@@ -564,11 +567,6 @@ void ExtractionContainers::WriteEdges(std::ofstream &file_out_stream) const
         file_out_stream.write((char *)&used_edges_counter_buffer,
                               sizeof(used_edges_counter_buffer));
 
-        if (!file_out_stream.good())
-        {
-            throw util::exception(std::string("Error on File Out Stream at ") + SOURCE_REF);
-        }
-
         for (const auto &edge : all_edges_list)
         {
             if (edge.result.source == SPECIAL_NODEID || edge.result.target == SPECIAL_NODEID)
@@ -581,12 +579,13 @@ void ExtractionContainers::WriteEdges(std::ofstream &file_out_stream) const
             NodeBasedEdge tmp = edge.result;
             file_out_stream.write((char *)&tmp, sizeof(NodeBasedEdge));
 
-            if (!file_out_stream.good())
-            {
-                throw util::exception(std::string("Error on File Out Stream at ") + SOURCE_REF);
-            }
-
             used_edges_counter++;
+        }
+
+        if (!file_out_stream.good())
+        {
+            throw util::exception(std::string("Error writing edges in extraction containers: ") +
+                                  SOURCE_REF);
         }
 
         if (used_edges_counter > std::numeric_limits<unsigned>::max())
@@ -609,7 +608,9 @@ void ExtractionContainers::WriteEdges(std::ofstream &file_out_stream) const
 
         if (!file_out_stream.good())
         {
-            throw util::exception(std::string("Error on File Out Stream at ") + SOURCE_REF);
+            throw util::exception(
+                std::string("Error writing number of used edges in extraction containers: ") +
+                SOURCE_REF);
         }
         log << "ok";
     }
@@ -624,10 +625,6 @@ void ExtractionContainers::WriteNodes(std::ofstream &file_out_stream) const
         util::UnbufferedLog log;
         log << "setting number of nodes   ... " << std::flush;
         file_out_stream.write((char *)&max_internal_node_id, sizeof(unsigned));
-        if (!file_out_stream.good())
-        {
-            throw util::exception(std::string("Error on File Out Stream at ") + SOURCE_REF);
-        }
         log << "ok";
     }
 
@@ -658,7 +655,9 @@ void ExtractionContainers::WriteNodes(std::ofstream &file_out_stream) const
             file_out_stream.write((char *)&(*node_iterator), sizeof(ExternalMemoryNode));
             if (!file_out_stream.good())
             {
-                throw util::exception(std::string("Error on File Out Stream at ") + SOURCE_REF);
+                throw util::exception(
+                    std::string("Error writing size of edges buffer in extraction containers: ") +
+                    SOURCE_REF);
             }
 
             ++node_id_iterator;
@@ -679,16 +678,9 @@ void ExtractionContainers::WriteRestrictions(const std::string &path) const
     restrictions_out_stream.open(path.c_str(), std::ios::binary);
     const util::FingerPrint fingerprint = util::FingerPrint::GetValid();
     restrictions_out_stream.write((char *)&fingerprint, sizeof(util::FingerPrint));
-    if (!restrictions_out_stream.good())
-    {
-        throw util::exception(std::string("Error on Restrictions Out Stream at ") + SOURCE_REF);
-    }
+
     const auto count_position = restrictions_out_stream.tellp();
     restrictions_out_stream.write((char *)&written_restriction_count, sizeof(unsigned));
-    if (!restrictions_out_stream.good())
-    {
-        throw util::exception(std::string("Error on Restrictions Out Stream at ") + SOURCE_REF);
-    }
 
     for (const auto &restriction_container : restrictions_list)
     {
@@ -698,20 +690,16 @@ void ExtractionContainers::WriteRestrictions(const std::string &path) const
         {
             restrictions_out_stream.write((char *)&(restriction_container.restriction),
                                           sizeof(TurnRestriction));
-            if (!restrictions_out_stream.good())
-            {
-                throw util::exception(std::string("Error on Restrictions Out Stream at ") +
-                                      SOURCE_REF);
-            }
-
             ++written_restriction_count;
         }
     }
+
     restrictions_out_stream.seekp(count_position);
     restrictions_out_stream.write((char *)&written_restriction_count, sizeof(unsigned));
     if (!restrictions_out_stream.good())
     {
-        throw util::exception(std::string("Error on Restrictions Out Stream at ") + SOURCE_REF);
+        throw util::exception(std::string("Error writing restrictions in extraction containers: ") +
+                              SOURCE_REF);
     }
     util::Log() << "usable restrictions: " << written_restriction_count;
 }

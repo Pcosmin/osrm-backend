@@ -168,7 +168,7 @@ int Extractor::run(ScriptingEnvironment &scripting_environment)
 
         if (!timestamp_out.good())
         {
-            throw util::exception(std::string("Error on Timestamp Out Write Stream for ") +
+            throw util::exception(std::string("Error writing timestamp in extractor: ") +
                                   SOURCE_REF);
         }
 
@@ -326,7 +326,8 @@ void Extractor::WriteProfileProperties(const std::string &output_path,
 
     if (!out_stream.good())
     {
-        throw util::exception(std::string("Error on Out Stream for ") + SOURCE_REF);
+        throw util::exception(std::string("Error writing profile properties in extractor: ") +
+                              SOURCE_REF);
     }
 }
 
@@ -549,7 +550,8 @@ void Extractor::WriteNodeMapping(const std::vector<QueryNode> &internal_to_exter
     }
     if (!node_stream.good())
     {
-        throw util::exception(std::string("Error on Node Out Stream for ") + SOURCE_REF);
+        throw util::exception(std::string("Error writing node mapping in extractor: ") +
+                              SOURCE_REF);
     }
 }
 
@@ -625,7 +627,8 @@ void Extractor::WriteEdgeBasedGraph(
 
     if (!file_out_stream.good())
     {
-        throw util::exception(std::string("Error on File Out Stream for ") + SOURCE_REF);
+        throw util::exception(std::string("Error writing edge barse graph in extractor: ") +
+                              SOURCE_REF);
     }
 
     TIMER_STOP(write_edges);
@@ -670,7 +673,9 @@ void Extractor::WriteIntersectionClassificationData(
 
     if (!file_out_stream.good())
     {
-        throw util::exception(std::string("Error on File Output Stream at ") + SOURCE_REF);
+        throw util::exception(
+            std::string("Error in writing interestction classification data in extractor: ") +
+            SOURCE_REF);
     }
 
     for (const auto &bearing_class : bearing_classes)
