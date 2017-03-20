@@ -253,7 +253,7 @@ class FileWriter
         const auto &result =
             output_stream.write(reinterpret_cast<const char *>(src), count * sizeof(T));
 
-        if (!result)
+        if (!result || !output_stream.good())
         {
             throw util::exception("Error writing to " + filepath.string());
         }
