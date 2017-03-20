@@ -680,7 +680,7 @@ void Extractor::WriteIntersectionClassificationData(
                               sizeof(bearings[0]) * bearings.size());
     }
 
-    if (!static_cast<bool>(file_out_stream) || !file_out_stream.good())
+    if (!static_cast<bool>(file_out_stream))
     {
         throw util::exception("Failed to write to " + output_file_name + "." + SOURCE_REF);
     }
