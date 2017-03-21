@@ -3,7 +3,7 @@
 FROM alpine:3.4
 
 RUN mkdir /src
-COPY .. /src
+COPY . /src
 
 RUN mkdir /opt
 WORKDIR /opt
