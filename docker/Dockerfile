@@ -2,6 +2,8 @@
 
 FROM alpine:3.4
 
+ARG DOCKER_TAG
+
 RUN mkdir /src
 COPY . /src
 
